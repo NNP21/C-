@@ -1,2 +1,2 @@
-# C-
+# C++
 Trial on GitHub
