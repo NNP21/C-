@@ -1,0 +1,38 @@
+# Define mesh and solution array
+x = np.linspace(-0.5, 0.5, 50)
+y = np.zeros((2, x.size))
+y2 = np.zeros((4, x.size))
+y2[0] = 2.5*x + 1
+y2[1] = 3*x 
+
+def fun1(x, y):
+# Solve for the Magnetic Field
+    B, dB = y;
+    d2B = (alpha/(C_k**2*sigma*zeta))*B -U_0*Q*(1/(zeta*C_k))*(1/(np.cosh(Q*x))**2 - 1/(np.cosh(Q/2))**2)
+    return dB, d2B
+
+def bc1(ya, yb):
+    #Define the boundary of the Magnetic Field
+    return ya[0], yb[0]
+
+def func2(x, y2):
+    # Call the Magnetic Solver
+    sol = solve_bvp(fun1, bc1, x, y)
+    B = sol.y[0]
+    dB = sol.y[1]
+    U = -C_k*zeta*sol.y[1]
+    dU = -C_k*zeta*sol.yp[1]
+
+    # define second array
+    T, dT, M, dM = y2
+
+    #set out the equations
+    d2T = (1/gamma - 1)*(sigma*dU**2 + zeta*alpha*dB**2)#
+    d2M =  -(dM/T)*dT + (dM/T)*theta*(m+1) - (alpha/T)*B*dB
+
+    return dT, d2T, dM, d2M
+
+def bc2(ya, yb):
+    return ya[0] - 1, yb[0] - 4, ya[2], yb[2] - 1
+
+tempdensity = solve_bvp(func2, bc2, x, y2)
